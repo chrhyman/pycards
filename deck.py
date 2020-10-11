@@ -1,4 +1,4 @@
-import random
+from random import shuffle
 
 class Deck(list):
     def __repr__(self):
@@ -8,7 +8,6 @@ class Deck(list):
         return ", ".join(str(c) for c in self)
 
     def deal_n(self, hand, n):
-        # modifies self and hand `n` timess
         for _ in range(n):
             hand.append(self.pop())
 
@@ -19,7 +18,7 @@ class Deck(list):
         return self.pop(self.index(card))
 
     def shuffle(self):
-        random.shuffle(self)
+        shuffle(self)
 
     def top_n(self, n):
         next_cards = []
