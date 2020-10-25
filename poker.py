@@ -26,7 +26,7 @@ class Poker:
                 self.hand[i] = self.deck.pop()
         return self._calculate_win()
 
-    def _calculate_win(self): # returns int multiplier of the calculated win and updates self.win_str
+    def _calculate_win(self): # returns int mult for bet, updates self.win_str
         pays = {'Royal Flush': 800, 'Straight Flush': 50, 'Four of a Kind': 25,
                 'Full House': 9,'Flush': 6, 'Straight': 4, 'Three of a Kind': 3,
                 'Two Pair': 2, 'Jacks or Better': 1, 'Try again': 0}
