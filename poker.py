@@ -1,4 +1,4 @@
-from card import Card
+from card import Rank, Suit, Card
 from deck import Deck, Hand
 
 class PokerError(Exception):
@@ -31,10 +31,23 @@ class Poker:
                 'Full House': 9,'Flush': 6, 'Straight': 4, 'Three of a Kind': 3,
                 'Two Pair': 2, 'Jacks or Better': 1, 'Try again': 0}
         best_hand = 'Try again'
-        cards = sorted(self.hand) # copy so it doesn't affect the internal order for displaying
+        cards = sorted(self.hand) # copy so it doesn't affect display order
         ranks = [c.rank_i for c in cards]
         suits = [c.suit_i for c in cards]
-        # check for flush
+        flags = {'Royal Flush': False, 'Straight Flush': False,
+                'Four of a Kind': False, 'Full House': False,'Flush': False,
+                'Straight': False, 'Three of a Kind': False, 'Two Pair': False,
+                'Jacks or Better': False, 'pair': False}
+        # pair (unused for wins)
+        # jacks or better = pair and rank in pair is >= Rank('J')
+        # two pair
+        # three of a kind
+        # straight
+        # flush
+        # full house = three of a kind and pair
+        # four of a kind
+        # straight flush = straight and flush
+        # royal flush = straight and flush and max Card Rank == Rank('A')
         is_flush = True if len(set(suits)) == 1 else False
         # check for straight
         #
@@ -46,8 +59,10 @@ class Poker:
         return repr(self.hand)
 
     def get_win(self, credits_won):
-        # do something with credits_won
-        return self.win_str
+        if credits_won > 0:
+            return f"{self.win_str}! +{credits_won} credits"
+        else:
+            return self.win_str
 
     def load(self, hand_repr):
         card_list = hand_repr.split(',')

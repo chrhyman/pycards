@@ -1,10 +1,10 @@
 from random import shuffle
 
 class Deck(list):
-    def __repr__(self): # "A.C,T.S,K.H" = Deck([Card('A', 'C'), Card('T', 'S'), Card('K', 'H')])
+    def __repr__(self): # "A.C,Z.B" = Deck([Card('A', 'C'), Card('Z', 'B')])
         return ",".join(repr(c) for c in self)
 
-    def __str__(self): # Ace of Clubs, Ten of Spades, King of Hearts
+    def __str__(self): # above example = Ace of Clubs, Black Joker
         return ", ".join(str(c) for c in self)
 
     def deal_n(self, player_hand, n):
