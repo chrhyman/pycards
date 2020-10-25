@@ -45,10 +45,22 @@ class Rank:
         return self.rank
 
     def __eq__(self, other):
-        return self.rank == other.rank
+        if type(other) is not type(self):
+            if type(other) is Card:
+                return self.__eq__(other.rk)
+            else:
+                return False
+        else:
+            return self.rank == other.rank
 
     def __ne__(self, other):
-        return self.rank != other.rank
+        if type(other) is not type(self):
+            if type(other) is Card:
+                return self.__ne__(other.rk)
+            else:
+                return True
+        else:
+            return self.rank != other.rank
 
     def __lt__(self, other):
         return self.rank_i < other.rank_i
@@ -101,10 +113,22 @@ class Suit:
         return self.suit
 
     def __eq__(self, other):
-        return self.suit == other.suit
+        if type(other) is not type(self):
+            if type(other) is Card:
+                return self.__eq__(other.st)
+            else:
+                return False
+        else:
+            return self.suit == other.suit
 
     def __ne__(self, other):
-        return self.suit != other.suit
+        if type(other) is not type(self):
+            if type(other) is Card:
+                return self.__ne__(other.st)
+            else:
+                return True
+        else:
+            return self.suit != other.suit
 
     def __lt__(self, other):
         return self.suit_i < other.suit_i
@@ -139,7 +163,7 @@ class Card:
         return f"{self.rk}.{self.st}"
 
     def __str__(self):
-        if self.suit in ['R', 'B']:
+        if self.st in [Suit('R'), Suit('B')]:
             return f"{self.st.suit_name} {self.rk.rank_name}"
         else:
             return f"{self.rk.rank_name} of {self.st.suit_name}"
@@ -151,20 +175,24 @@ class Card:
         return self.st == other.st
 
     def __eq__(self, other):
-        if type(self) is not type(other):
+        if type(other) is not type(self):
             if type(other) is Rank:
                 return other.__eq__(self.rk)
             elif type(other) is Suit:
                 return other.__eq__(self.st)
+            else:
+                return False
         else:
             return self.rk == other.rk and self.st == other.st
 
     def __ne__(self, other):
-        if type(self) is not type(other):
+        if type(other) is not type(self):
             if type(other) is Rank:
                 return other.__ne__(self.rk)
             elif type(other) is Suit:
                 return other.__ne__(self.st)
+            else:
+                return True
         else:
             return self.rk != other.rk or self.st != other.st
 
@@ -199,21 +227,23 @@ class Card:
         2 of Spades, ..., Ace of Spades, Red Joker, Black Joker, [repeats]
                  when using empty constructor Card(), BJ ^ is the default card
         '''
-        r = str(self.rk)
-        s = str(self.st)
         if self.st <= Suit('S'):
             if self.rk < Rank('A'):
-                r = str(self.rk._next())
+                r, s = str(self.rk._next()), str(self.st)
             elif self.rk == Rank('A'):
                 if self.st < Suit('S'):
-                    r = '2'
-                    s = str(self.st._next())
+                    r, s = '2', str(self.st._next())
                 elif self.st == Suit('S'):
                     r, s = 'Z', 'B'
+                # no else due to highest level `if` capturing this logic
+            else: # e.g. Joker of Spades
+                raise CardError(f"Invalid Card: r={self.rk}, s={self.st}")
         elif self.st == Suit('B') and self.rk == Rank('Z'):
             r, s = 'Z', 'R'
         elif self.st == Suit('R') and self.rk == Rank('Z'):
             r, s = '2', 'C'
+        else: # e.g. Seven of Black
+            raise CardError(f"Invalid Card: r={self.rk}, s={self.st}")
         return Card(r, s)
 
     def next_n(self, n): # excludes self; returns list; Card().next_n(52)
@@ -227,4 +257,4 @@ class Card:
     def url(self, show_back=False):
       if show_back:
           return "https://raw.githubusercontent.com/chrhyman/pycards/main/assets/cards/cardback.png"
-      return f"https://raw.githubusercontent.com/chrhyman/pycards/main/assets/cards/{self.rank_name.lower()}_{self.suit_name.lower()}.png"
+      return f"https://raw.githubusercontent.com/chrhyman/pycards/main/assets/cards/{self.rk.rank_name.lower()}_{self.st.suit_name.lower()}.png"
