@@ -63,13 +63,28 @@ class Rank:
         return self.rank_i >= other.rank_i
 
     def _next(self):
-        pass
+        if self.rank in ['A', 'Z']:
+            i = 0 # '2'
+        else:
+            i = self.rank_i + 1
+        return Rank(Rank.RANKS[i])
 
     def _prev(self):
-        pass
+        if self.rank == '2':
+            i = 12 # 'A'
+        else:
+            i = self.rank_i - 1
+        return Rank(Rank.RANKS[i])
 
-    def next_n(self, n=1): # returns a list of the next n Ranks
-        pass
+    def next_n(self, n): # returns a list of the next n Ranks
+        rank = self
+        rank_list = []
+        for _ in range(n):
+            rank = rank._next()
+            rank_list.append(rank)
+        if Rank('A') in rank_list[1:-1]:
+            raise RankError("An Ace is in the middle of a run.")
+        return rank_list
 
 class Suit:
     SUITS = ['C', 'D', 'H', 'S', 'B', 'R']
@@ -102,6 +117,13 @@ class Suit:
 
     def __ge__(self, other):
         return self.suit_i >= other.suit_i
+
+    def _next(self):
+        if self.suit in ['S', 'B', 'R']:
+            i = 0 # 'C'
+        else:
+            i = self.suit_i + 1
+        return Suit(Suit.SUITS[i])
 
 class Card:
     def __init__(self, rank='Z', suit='R'): # Card(str(rank_obj), str(suit_obj))
@@ -165,22 +187,24 @@ class Card:
         2 of Spades, ..., Ace of Spades, Red Joker, Black Joker, [repeats]
                  when using empty constructor Card(), BJ ^ is the default card
         '''
-        if self.suit_i <= Card.SUITS.index('S'):
-            if self.rank_i < Card.RANKS.index('A'):
-                return Card(Card.RANKS[self.rank_i + 1], self.suit)
-            elif self.rank == 'A':
-                if self.suit_i < Card.SUITS.index('S'):
-                    return Card('2', Card.SUITS[self.suit_i + 1])
-                elif self.suit == 'S':
-                    return Card('Z', 'B')
-        elif self.suit == 'B' and self.rank == 'Z':
-            return Card('Z', 'R')
-        elif self.suit == 'R' and self.rank == 'Z':
-            return Card('2', 'C')
+        r = str(self.rk)
+        s = str(self.st)
+        if self.st <= Suit('S'):
+            if self.rk < Rank('A'):
+                r = str(self.rk._next())
+            elif self.rk == Rank('A'):
+                if self.st < Suit('S'):
+                    r = '2'
+                    s = str(self.st._next())
+                elif self.st == Suit('S'):
+                    r, s = 'Z', 'B'
+        elif self.st == Suit('B') and self.rk == Rank('Z'):
+            r, s = 'Z', 'R'
+        elif self.st == Suit('R') and self.rk == Rank('Z'):
+            r, s = '2', 'C'
+        return Card(r, s)
 
-        raise CardError(f"No next value for r={self.rank}, s={self.suit}")
-
-    def next_n(self, n): # doesn't include itself; returns a list; Card().next_n(52) is an idiom for a list of the standard 52 cards
+    def next_n(self, n): # excludes self; returns list; Card().next_n(52)
         card = self
         card_list = []
         for _ in range(n):
