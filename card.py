@@ -151,10 +151,22 @@ class Card:
         return self.st == other.st
 
     def __eq__(self, other):
-        return self.rk == other.rk and self.st == other.st
+        if type(self) is not type(other):
+            if type(other) is Rank:
+                return other.__eq__(self.rk)
+            elif type(other) is Suit:
+                return other.__eq__(self.st)
+        else:
+            return self.rk == other.rk and self.st == other.st
 
     def __ne__(self, other):
-        return self.rk != other.rk or self.st != other.st
+        if type(self) is not type(other):
+            if type(other) is Rank:
+                return other.__ne__(self.rk)
+            elif type(other) is Suit:
+                return other.__ne__(self.st)
+        else:
+            return self.rk != other.rk or self.st != other.st
 
     def __lt__(self, other):
         if self.rk < other.rk or (self.rk == other.rk and self.st < other.st):
