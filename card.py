@@ -1,107 +1,162 @@
+NAMES = {
+    'A': "Ace",
+    'B': "Black",
+    'C': "Clubs",
+    'D': "Diamonds",
+    'H': "Hearts",
+    'J': "Jack",
+    'K': "King",
+    'Q': "Queen",
+    'R': "Red",
+    'S': "Spades",
+    'T': "Ten",
+    'Z': "Joker",
+    '9': "Nine",
+    '8': "Eight",
+    '7': "Seven",
+    '6': "Six",
+    '5': "Five",
+    '4': "Four",
+    '3': "Three",
+    '2': "Two"
+}
+
 class CardError(Exception):
     pass
 
-class Card:
-    RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', 'Z']
-    SUITS = ['C', 'D', 'H', 'S', 'B', 'R']
-    pretty_SUITS = ['♣', '♦', '❤', '♠']
+class RankError(CardError):
+    pass
 
-    NAMES = {
-        'A': "Ace",
-        'B': "Black",
-        'C': "Clubs",
-        'D': "Diamonds",
-        'H': "Hearts",
-        'J': "Jack",
-        'K': "King",
-        'Q': "Queen",
-        'R': "Red",
-        'S': "Spades",
-        'T': "Ten",
-        'Z': "Joker",
-        '9': "Nine",
-        '8': "Eight",
-        '7': "Seven",
-        '6': "Six",
-        '5': "Five",
-        '4': "Four",
-        '3': "Three",
-        '2': "Two"
-    }
+class SuitError(CardError):
+    pass
 
-    def __init__(self, rank='Z', suit='R'):
-        rank, suit = rank.upper(), suit.upper()
-        if rank not in Card.RANKS or suit not in Card.SUITS:
-            raise CardError(f"INVALID Card(): rank={rank}, suit={suit}")
-
+class Rank:
+    RANKS = ['2', '3', '4', '5', '6', '7', '8',
+             '9', 'T', 'J', 'Q', 'K', 'A', 'Z']
+    def __init__(self, rank='Z'):
+        rank = rank.upper()
+        if rank not in Rank.RANKS:
+            raise RankError(f"INVALID Rank: rank={rank}")
         self.rank = rank
-        self.rank_i = Card.RANKS.index(rank)
-        self.rank_name = Card.NAMES[rank]
+        self.rank_i = Rank.RANKS.index(rank)
+        self.rank_name = NAMES[rank]
 
+    def __str__(self):
+        return self.rank
+
+    def __eq__(self, other):
+        return self.rank == other.rank
+
+    def __ne__(self, other):
+        return self.rank != other.rank
+
+    def __lt__(self, other):
+        return self.rank_i < other.rank_i
+
+    def __le__(self, other):
+        return self.rank_i <= other.rank_i
+
+    def __gt__(self, other):
+        return self.rank_i > other.rank_i
+
+    def __ge__(self, other):
+        return self.rank_i >= other.rank_i
+
+    def _next(self):
+        pass
+
+    def _prev(self):
+        pass
+
+    def next_n(self, n=1): # returns a list of the next n Ranks
+        pass
+
+class Suit:
+    SUITS = ['C', 'D', 'H', 'S', 'B', 'R']
+    def __init__(self, suit='R'):
+        suit = suit.upper()
+        if suit not in Suit.SUITS:
+            raise SuitError(f"INVALID Suit: suit={suit}")
         self.suit = suit
-        self.suit_i = Card.SUITS.index(suit)
-        self.suit_name = Card.NAMES[suit]
-
+        self.suit_i = Suit.SUITS.index(suit)
+        self.suit_name = NAMES[suit]
         self.color = "red" if self.suit in ['D', 'H', 'R'] else "black"
 
+    def __str__(self):
+        return self.suit
+
+    def __eq__(self, other):
+        return self.suit == other.suit
+
+    def __ne__(self, other):
+        return self.suit != other.suit
+
+    def __lt__(self, other):
+        return self.suit_i < other.suit_i
+
+    def __le__(self, other):
+        return self.suit_i <= other.suit_i
+
+    def __gt__(self, other):
+        return self.suit_i > other.suit_i
+
+    def __ge__(self, other):
+        return self.suit_i >= other.suit_i
+
+class Card:
+    def __init__(self, rank='Z', suit='R'): # Card(str(rank_obj), str(suit_obj))
+        rank, suit = rank.upper(), suit.upper()
+        try:
+            self.rk = Rank(rank)
+            self.st = Suit(suit)
+            self.color = self.st.color
+        except:
+            raise CardError(f"INVALID Card(): rank={rank}, suit={suit}")
+
     def __repr__(self):
-        return f"{self.rank}.{self.suit}"
+        return f"{self.rk}.{self.st}"
 
     def __str__(self):
         if self.suit in ['R', 'B']:
-            return f"{self.suit_name} {self.rank_name}"
+            return f"{self.st.suit_name} {self.rk.rank_name}"
         else:
-            return f"{self.rank_name} of {self.suit_name}"
+            return f"{self.rk.rank_name} of {self.st.suit_name}"
 
     def rank_eq(self, other):
-        return self.rank == other.rank
+        return self.rk == other.rk
 
     def suit_eq(self, other):
-        return self.suit == other.suit
+        return self.st == other.st
 
     def __eq__(self, other):
-        return self.rank == other.rank and self.suit == other.suit
+        return self.rk == other.rk and self.st == other.st
 
     def __ne__(self, other):
-        return self.rank != other.rank or self.suit != other.suit
+        return self.rk != other.rk or self.st != other.st
 
     def __lt__(self, other):
-        if self.rank_i < other.rank_i or (self.rank_i == other.rank_i and self.suit_i < other.suit_i):
+        if self.rk < other.rk or (self.rk == other.rk and self.st < other.st):
             return True
         else:
             return False
 
     def __le__(self, other):
-        if self.rank_i <= other.rank_i or (self.rank_i == other.rank_i and self.suit_i <= other.suit_i):
+        if self.rk <= other.rk or (self.rk == other.rk and self.st <= other.st):
             return True
         else:
             return False
 
     def __gt__(self, other):
-        if self.rank_i > other.rank_i or (self.rank_i == other.rank_i and self.suit_i > other.suit_i):
+        if self.rk > other.rk or (self.rk == other.rk and self.st > other.st):
             return True
         else:
             return False
 
     def __ge__(self, other):
-        if self.rank_i >= other.rank_i or (self.rank_i == other.rank_i and self.suit_i >= other.suit_i):
+        if self.rk >= other.rk or (self.rk == other.rk and self.st >= other.st):
             return True
         else:
             return False
-
-    def next_rank(self):
-        if self.rank == 'A':
-            i = 0 # '2'
-        else:
-            i = self.rank_i + 1
-        return Card.RANKS[i]
-
-    def prev_rank(self):
-        if self.rank == '2':
-            i = 12 # 'A'
-        else:
-            i = self.rank_i - 1
-        return Card.RANKS[i]
 
     def _next(self):
         '''Returns a new Card object that is "next" in this order:
