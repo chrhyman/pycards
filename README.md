@@ -1,5 +1,2 @@
 # pycards
-A Terminal interface for playing card games, written in Python
-
-## Requirements
-`sty` is used to make cards have color and can easily be installed with `pip install sty`.
+An interface for playing card games, written in Python. Current repo for an implementation on Anvil: `pycards.anvil.app`

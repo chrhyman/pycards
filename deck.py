@@ -1,18 +1,18 @@
 from random import shuffle
 
 class Deck(list):
-    def __repr__(self):
-        return f'''Deck([{", ".join(repr(c) for c in self)}])'''
+    def __repr__(self): # "A.C,T.S,K.H" = Deck([Card('A', 'C'), Card('T', 'S'), Card('K', 'H')])
+        return ",".join(repr(c) for c in self)
 
-    def __str__(self):
+    def __str__(self): # Ace of Clubs, Ten of Spades, King of Hearts
         return ", ".join(str(c) for c in self)
 
-    def deal_n(self, target_list, n):
+    def deal_n(self, player_hand, n):
         for _ in range(n):
-            target_list.append(self.pop())
+            player_hand.append(self.pop())
 
-    def deal_card(self, target_list, card):
-        target_list.append(self.pop_card(card))
+    def deal_card(self, player_hand, card):
+        player_hand.append(self.pop_card(card))
 
     def pop_card(self, card):
         return self.pop(self.index(card))
@@ -20,16 +20,7 @@ class Deck(list):
     def shuffle(self):
         shuffle(self)
 
-    def reveal_top_n(self, n):
-        next_cards = []
-        for i in range(n):
-            next_cards.append(self[-(i + 1)])
-        return next_cards
-
 class Hand(Deck):
     def __init__(self, name, cards=[]):
         self.name = name
         super().__init__(cards)
-
-    def __repr__(self):
-        return f'''Hand("{self.name}", [{", ".join(repr(c) for c in self)}])'''

@@ -1,8 +1,9 @@
-class CardError(Exception):
-    pass
+from sty import fg, bg, rs
 
 class Card:
-    RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', 'Z']
+    # Implements comparison operators < <= > >= == != with values [low...high]
+    RANKS = ['2', '3', '4', '5', '6', '7', '8', '9',
+        'T', 'J', 'Q', 'K', 'A', 'Z']
     SUITS = ['C', 'D', 'H', 'S', 'B', 'R']
     pretty_SUITS = ['♣', '♦', '❤', '♠']
 
@@ -32,7 +33,7 @@ class Card:
     def __init__(self, rank='Z', suit='R'):
         rank, suit = rank.upper(), suit.upper()
         if rank not in Card.RANKS or suit not in Card.SUITS:
-            raise CardError(f"INVALID Card(): rank={rank}, suit={suit}")
+            raise ValueError(f"INVALID: rank={rank}, suit={suit}")
 
         self.rank = rank
         self.rank_i = Card.RANKS.index(rank)
@@ -45,7 +46,7 @@ class Card:
         self.color = "red" if self.suit in ['D', 'H', 'R'] else "black"
 
     def __repr__(self):
-        return f"{self.rank}.{self.suit}"
+        return f"Card('{self.rank}', '{self.suit}')"
 
     def __str__(self):
         if self.suit in ['R', 'B']:
@@ -53,62 +54,29 @@ class Card:
         else:
             return f"{self.rank_name} of {self.suit_name}"
 
-    def rank_eq(self, other):
-        return self.rank == other.rank
-
-    def suit_eq(self, other):
-        return self.suit == other.suit
-
     def __eq__(self, other):
-        return self.rank == other.rank and self.suit == other.suit
+        return (self.rank_i, self.suit_i) == (other.rank_i, other.suit_i)
 
     def __ne__(self, other):
-        return self.rank != other.rank or self.suit != other.suit
+        return (self.rank_i, self.suit_i) != (other.rank_i, other.suit_i)
 
     def __lt__(self, other):
-        if self.rank_i < other.rank_i or (self.rank_i == other.rank_i and self.suit_i < other.suit_i):
-            return True
-        else:
-            return False
+        return (self.rank_i, self.suit_i) < (other.rank_i, other.suit_i)
 
     def __le__(self, other):
-        if self.rank_i <= other.rank_i or (self.rank_i == other.rank_i and self.suit_i <= other.suit_i):
-            return True
-        else:
-            return False
+        return (self.rank_i, self.suit_i) <= (other.rank_i, other.suit_i)
 
     def __gt__(self, other):
-        if self.rank_i > other.rank_i or (self.rank_i == other.rank_i and self.suit_i > other.suit_i):
-            return True
-        else:
-            return False
+        return (self.rank_i, self.suit_i) > (other.rank_i, other.suit_i)
 
     def __ge__(self, other):
-        if self.rank_i >= other.rank_i or (self.rank_i == other.rank_i and self.suit_i >= other.suit_i):
-            return True
-        else:
-            return False
-
-    def next_rank(self):
-        if self.rank == 'A':
-            i = 0 # '2'
-        else:
-            i = self.rank_i + 1
-        return Card.RANKS[i]
-
-    def prev_rank(self):
-        if self.rank == '2':
-            i = 12 # 'A'
-        else:
-            i = self.rank_i - 1
-        return Card.RANKS[i]
+        return (self.rank_i, self.suit_i) >= (other.rank_i, other.suit_i)
 
     def _next(self):
         '''Returns a new Card object that is "next" in this order:
         2 of Clubs, 3 of Clubs, ..., King of Clubs, Ace of Clubs,
         2 of Diamonds, ..., Ace of Hearts, 2 of Hearts, ..., Ace of Hearts,
         2 of Spades, ..., Ace of Spades, Red Joker, Black Joker, [repeats]
-                 when using empty constructor Card(), BJ ^ is the default card
         '''
         if self.suit_i <= Card.SUITS.index('S'):
             if self.rank_i < Card.RANKS.index('A'):
@@ -123,9 +91,9 @@ class Card:
         elif self.suit == 'R' and self.rank == 'Z':
             return Card('2', 'C')
 
-        raise CardError(f"No next value for r={self.rank}, s={self.suit}")
+        raise ValueError(f"No next value for r={self.rank}, s={self.suit}")
 
-    def next_n(self, n): # doesn't include itself; returns a list; Card().next_n(52) is an idiom for a list of the standard 52 cards
+    def next_n(self, n):        # doesn't include itself; returns a list
         card = self
         card_list = []
         for _ in range(n):
@@ -133,7 +101,11 @@ class Card:
             card_list.append(card)
         return card_list
 
-    def url(self, show_back=False):
-      if show_back:
-          return "https://raw.githubusercontent.com/chrhyman/pycards/main/assets/cards/cardback.png"
-      return f"https://raw.githubusercontent.com/chrhyman/pycards/main/assets/cards/{self.rank_name.lower()}_{self.suit_name.lower()}.png"
+    def pretty(self):
+        pretty_str = '[' + bg.li_white + fg(self.color)
+        if self.rank != 'Z':
+            pretty_str += f" {self.rank} {Card.pretty_SUITS[self.suit_i]} "
+        else:
+            pretty_str += f" {self.suit.lower()}JK "
+        pretty_str += rs.all + ']'
+        return pretty_str
