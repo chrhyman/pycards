@@ -1,5 +1,5 @@
-from .card import Card
-from .deck import Deck, Hand
+from card import Card
+from deck import Deck, Hand
 
 class PokerError(Exception):
   pass
