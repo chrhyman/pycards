@@ -41,6 +41,9 @@ class Rank:
         self.rank_i = Rank.RANKS.index(rank)
         self.rank_name = NAMES[rank]
 
+    def __repr__(self):
+        return f"Rank('{self.rank}')"
+
     def __str__(self):
         return self.rank
 
@@ -88,12 +91,12 @@ class Rank:
             i = self.rank_i - 1
         return Rank(Rank.RANKS[i])
 
-    def next_n(self, n): # returns a list of the next n Ranks
+    def run_of(self, n): # returns list of n sequential Ranks starting w/ self
         rank = self
         rank_list = []
         for _ in range(n):
-            rank = rank._next()
             rank_list.append(rank)
+            rank = rank._next()
         if Rank('A') in rank_list[1:-1]:
             raise RankError("An Ace is in the middle of a run.")
         return rank_list
@@ -108,6 +111,9 @@ class Suit:
         self.suit_i = Suit.SUITS.index(suit)
         self.suit_name = NAMES[suit]
         self.color = "red" if self.suit in ['D', 'H', 'R'] else "black"
+
+    def __repr__(self):
+        return f"Suit('{self.suit}')"
 
     def __str__(self):
         return self.suit
