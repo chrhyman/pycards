@@ -84,13 +84,6 @@ class Rank:
             i = self.rank_i + 1
         return Rank(Rank.RANKS[i])
 
-    def _prev(self):
-        if self.rank == '2':
-            i = 12 # 'A'
-        else:
-            i = self.rank_i - 1
-        return Rank(Rank.RANKS[i])
-
     def run_of(self, n): # returns list of n sequential Ranks starting w/ self
         rank = self
         rank_list = []
