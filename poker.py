@@ -1,4 +1,4 @@
-from card import Rank, Suit, Card
+from card import Rank, Suit, Card, RankError
 from deck import Deck, Hand
 
 class PokerError(Exception):
@@ -27,31 +27,60 @@ class Poker:
         return self._calculate_win()
 
     def _calculate_win(self): # returns int mult for bet, updates self.win_str
+        # dict paytable
         pays = {'Royal Flush': 800, 'Straight Flush': 50, 'Four of a Kind': 25,
                 'Full House': 9,'Flush': 6, 'Straight': 4, 'Three of a Kind': 3,
                 'Two Pair': 2, 'Jacks or Better': 1, 'Try again': 0}
         best_hand = 'Try again'
         cards = sorted(self.hand) # copy so it doesn't affect display order
-        ranks = [c.rank_i for c in cards]
-        suits = [c.suit_i for c in cards]
-        flags = {'Royal Flush': False, 'Straight Flush': False,
-                'Four of a Kind': False, 'Full House': False,'Flush': False,
-                'Straight': False, 'Three of a Kind': False, 'Two Pair': False,
-                'Jacks or Better': False, 'pair': False}
-        # pair (unused for wins)
-        # jacks or better = pair and rank in pair is >= Rank('J')
-        # two pair
-        # three of a kind
-        # straight
-        # flush
-        # full house = three of a kind and pair
-        # four of a kind
-        # straight flush = straight and flush
-        # royal flush = straight and flush and max Card Rank == Rank('A')
-        is_flush = True if len(set(suits)) == 1 else False
-        # check for straight
-        #
-        #
+        flags = {'Flush': False, 'Straight': False}
+        freq_count = {} # {'rank': int count of occurrences of rank in hand}
+        for card in cards:
+            if str(card.rk) in freq_count:
+                freq_count[str(card.rk)] += 1
+            else:
+                freq_count[str(card.rk)] = 1
+        freqs = [freq_count[k] for k in freq_count] # list of frequency values
+        # set best_hand in order so that it is overwritten as hands improve
+        if 2 in freqs:
+            for rank in freq_count:
+                if Rank(rank) >= Rank('J') and freq_count[rank] == 2:
+                    best_hand = 'Jacks or Better'
+            if freqs.count(2) == 2:
+                best_hand = 'Two Pair'
+
+        if 3 in freqs:
+            best_hand = 'Three of a Kind'
+
+        straight_check_from = Rank(min(cards).rk.rank)
+        if Rank('A') in cards:
+            straight_check_from = Rank('A')
+            if Rank('T') in cards:
+                straight_check_from = Rank('T')
+        try:
+            straight_check = straight_check_from.run_of(5)
+            flags['Straight'] = all([rank in cards for rank in straight_check])
+        except RankError:
+            flags['Straight'] = False
+        if flags['Straight']:
+            best_hand = 'Straight'
+
+        num_suits = len(set([c.st.suit for c in cards]))
+        if num_suits == 1:
+            flags['Flush'] = True
+            best_hand = 'Flush'
+
+        if 3 in freqs and 2 in freqs:
+            best_hand = 'Full House'
+
+        if 4 in freqs:
+            best_hand = 'Four of a Kind'
+
+        if flags['Straight'] and flags['Flush']:
+            best_hand = 'Straight Flush'
+            if Rank('T') in cards and Rank('A') in cards:
+                best_hand = 'Royal Flush'
+
         self.win_str = best_hand
         return pays[best_hand]
 
